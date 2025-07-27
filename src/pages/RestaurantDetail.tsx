@@ -124,28 +124,49 @@ const RestaurantDetail = () => {
             </Card>
 
             {/* Plats du jour */}
-            <Card>
+            <Card className="overflow-hidden">
               <CardContent className="p-6">
-                <h2 className="text-2xl font-semibold mb-4 text-foreground">Plats du jour</h2>
-                <div className="space-y-4">
+                <h2 className="text-2xl font-semibold mb-6 text-foreground flex items-center">
+                  <Euro className="w-6 h-6 mr-2 text-spice" />
+                  Plats du jour
+                </h2>
+                <div className="grid gap-6 md:grid-cols-2">
                   {restaurant.todaySpecials.map((dish, index) => (
-                    <div key={index} className="flex items-center space-x-4 p-4 rounded-lg border hover:bg-muted/50 transition-colors">
-                      <img 
-                        src={dish.image} 
-                        alt={dish.name}
-                        className="w-20 h-20 rounded-lg object-cover"
-                      />
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-lg text-foreground">{dish.name}</h3>
-                        <p className="text-muted-foreground text-sm">{dish.description}</p>
-                        <p className="font-bold text-terracotta text-lg mt-1">
+                    <Card key={index} className="group overflow-hidden hover:shadow-warm transition-all duration-300 hover:scale-[1.02] border-muted/50">
+                      <div className="relative">
+                        <img 
+                          src={dish.image} 
+                          alt={dish.name}
+                          className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                        <Badge className="absolute top-3 right-3 bg-terracotta/90 text-white backdrop-blur-sm">
                           {dish.price.toLocaleString()} CFA
-                        </p>
+                        </Badge>
                       </div>
-                      <Button variant="spice" size="sm">
-                        Commander
-                      </Button>
-                    </div>
+                      <CardContent className="p-4">
+                        <h3 className="font-bold text-xl text-foreground mb-2 group-hover:text-spice transition-colors">
+                          {dish.name}
+                        </h3>
+                        <p className="text-muted-foreground text-sm mb-4 leading-relaxed">
+                          {dish.description}
+                        </p>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-1">
+                            <Star className="w-4 h-4 fill-sahel text-sahel" />
+                            <span className="text-sm font-medium">4.5</span>
+                            <span className="text-xs text-muted-foreground">(23 avis)</span>
+                          </div>
+                          <Button 
+                            variant="spice" 
+                            size="sm" 
+                            className="hover:shadow-lg transition-all duration-200"
+                          >
+                            Commander
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
                   ))}
                 </div>
               </CardContent>
