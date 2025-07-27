@@ -4,6 +4,8 @@ import { AppProviders } from "@/components/AppProviders";
 import Index from "./pages/Index";
 import SearchPage from "./pages/SearchPage";
 import RestaurantDetail from "./pages/RestaurantDetail";
+import OwnerDashboard from "./pages/OwnerDashboard";
+import FavoritesPage from "./pages/FavoritesPage";
 import NotFound from "./pages/NotFound";
 
 function App() {
@@ -17,6 +19,8 @@ function App() {
             <Route path="/" element={<Index />} />
             <Route path="/search" element={<SearchPage />} />
             <Route path="/restaurant/:id" element={<RestaurantDetail />} />
+            <Route path="/owner/dashboard" element={<OwnerDashboard />} />
+            <Route path="/favorites" element={<FavoritesPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

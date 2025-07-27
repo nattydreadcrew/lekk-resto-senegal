@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Search, MapPin, Phone } from "lucide-react";
+import { Search, MapPin, Phone, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -17,11 +17,26 @@ const Header = () => {
             <span className="text-sm text-muted-foreground">Sénégal</span>
           </div>
           <div className="flex items-center space-x-2">
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => navigate('/favorites')}
+            >
+              <Heart className="w-4 h-4 mr-1" />
+              Favoris
+            </Button>
             <Button variant="ghost" size="sm">
               FR
             </Button>
             <Button variant="ghost" size="sm">
               WO
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => navigate('/owner/dashboard')}
+            >
+              Propriétaire
             </Button>
           </div>
         </div>

@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import FavoriteButton from "@/components/FavoriteButton";
 import { MapPin, Phone, Clock, Star } from "lucide-react";
 
 interface Dish {
@@ -46,11 +47,12 @@ const RestaurantCard = ({ restaurant }: RestaurantCardProps) => {
             <Badge variant="destructive">Fermé</Badge>
           )}
         </div>
-        {restaurant.deliveryAvailable && (
-          <div className="absolute top-3 right-3">
+        <div className="absolute top-3 right-3 flex items-center space-x-2">
+          <FavoriteButton restaurantId={restaurant.id} />
+          {restaurant.deliveryAvailable && (
             <Badge className="bg-spice text-white">Livraison</Badge>
-          </div>
-        )}
+          )}
+        </div>
       </div>
       
       <CardContent className="p-4">
