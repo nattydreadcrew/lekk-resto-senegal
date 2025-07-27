@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -22,12 +23,16 @@ interface Restaurant {
 
 interface RestaurantCardProps {
   restaurant: Restaurant;
-  onClick?: () => void;
 }
 
-const RestaurantCard = ({ restaurant, onClick }: RestaurantCardProps) => {
+const RestaurantCard = ({ restaurant }: RestaurantCardProps) => {
+  const navigate = useNavigate();
+  
+  const handleClick = () => {
+    navigate(`/restaurant/${restaurant.id}`);
+  };
   return (
-    <Card className="overflow-hidden hover:shadow-warm transition-all duration-300 cursor-pointer group" onClick={onClick}>
+    <Card className="overflow-hidden hover:shadow-warm transition-all duration-300 cursor-pointer group animate-fade-in hover:scale-[1.02]" onClick={handleClick}>
       <div className="relative">
         <img 
           src={restaurant.image} 

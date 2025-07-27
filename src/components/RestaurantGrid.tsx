@@ -102,12 +102,10 @@ const RestaurantGrid = () => {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {mockRestaurants.map((restaurant) => (
-            <RestaurantCard 
-              key={restaurant.id} 
-              restaurant={restaurant}
-              onClick={() => console.log(`Clicked on ${restaurant.name}`)}
-            />
+          {mockRestaurants.map((restaurant, index) => (
+            <div key={restaurant.id} style={{ animationDelay: `${index * 0.1}s` }}>
+              <RestaurantCard restaurant={restaurant} />
+            </div>
           ))}
         </div>
         
