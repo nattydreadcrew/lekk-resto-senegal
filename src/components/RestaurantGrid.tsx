@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import RestaurantCard from "./RestaurantCard";
 
 // Mock data - sera remplacé par les vraies données de Supabase
@@ -89,6 +90,7 @@ const mockRestaurants = [
 ];
 
 const RestaurantGrid = () => {
+  const navigate = useNavigate();
   return (
     <section className="py-12 px-4">
       <div className="container mx-auto">
@@ -114,11 +116,17 @@ const RestaurantGrid = () => {
             Plus de restaurants disponibles dans votre région
           </p>
           <div className="space-x-4">
-            <button className="text-primary hover:text-primary/80 font-medium">
+            <button 
+              onClick={() => navigate('/search')}
+              className="text-primary hover:text-primary/80 font-medium"
+            >
               Voir tous les restaurants
             </button>
             <span className="text-muted-foreground">|</span>
-            <button className="text-primary hover:text-primary/80 font-medium">
+            <button 
+              onClick={() => navigate('/search')}
+              className="text-primary hover:text-primary/80 font-medium"
+            >
               Filtrer par quartier
             </button>
           </div>

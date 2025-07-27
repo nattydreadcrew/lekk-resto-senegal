@@ -1,14 +1,17 @@
+import { useNavigate } from "react-router-dom";
 import { Search, MapPin, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 const Header = () => {
+  const navigate = useNavigate();
+  
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-2">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-terracotta to-spice bg-clip-text text-transparent">
+            <h1 className="text-2xl font-display font-bold bg-gradient-to-r from-terracotta to-spice bg-clip-text text-transparent">
               Lekk Resto
             </h1>
             <span className="text-sm text-muted-foreground">Sénégal</span>
@@ -28,7 +31,9 @@ const Header = () => {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
             <Input 
               placeholder="Rechercher un restaurant..."
-              className="pl-10 bg-muted/50"
+              className="pl-10 bg-muted/50 cursor-pointer"
+              onClick={() => navigate('/search')}
+              readOnly
             />
           </div>
           

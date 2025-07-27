@@ -1,9 +1,12 @@
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, MapPin } from "lucide-react";
 import heroImage from "@/assets/hero-senegal-cuisine.jpg";
 
 const HeroSection = () => {
+  const navigate = useNavigate();
+  
   return (
     <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden">
       {/* Background Image */}
@@ -18,7 +21,7 @@ const HeroSection = () => {
       
       {/* Content */}
       <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto animate-slide-up">
-        <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+        <h1 className="text-4xl md:text-6xl font-display font-bold mb-6 leading-tight">
           Découvrez les{" "}
           <span className="text-sahel">meilleurs restaurants</span>{" "}
           du Sénégal
@@ -47,7 +50,7 @@ const HeroSection = () => {
               />
             </div>
             
-            <Button variant="spice" size="lg" className="sm:w-auto">
+            <Button variant="spice" size="lg" className="sm:w-auto" onClick={() => navigate('/search')}>
               Rechercher
             </Button>
           </div>
