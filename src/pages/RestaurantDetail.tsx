@@ -1,8 +1,10 @@
 import { useParams, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, Star, MapPin, Phone, Clock, Truck, Euro } from "lucide-react";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { ArrowLeft, Star, MapPin, Phone, Clock, Truck, Euro, Camera, X } from "lucide-react";
 
 // Mock restaurant data - sera remplacé par Supabase
 const mockRestaurantDetail = {
@@ -45,6 +47,7 @@ const mockRestaurantDetail = {
 const RestaurantDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   // En production, récupérer les données depuis Supabase avec l'ID
   const restaurant = mockRestaurantDetail;
@@ -173,19 +176,72 @@ const RestaurantDetail = () => {
             </Card>
 
             {/* Galerie photos */}
-            <Card>
+            <Card className="overflow-hidden">
               <CardContent className="p-6">
-                <h2 className="text-2xl font-semibold mb-4 text-foreground">Photos</h2>
-                <div className="grid grid-cols-3 gap-4">
+                <h2 className="text-2xl font-semibold mb-6 text-foreground flex items-center">
+                  <Camera className="w-6 h-6 mr-2 text-spice" />
+                  Galerie photos
+                  <Badge variant="secondary" className="ml-3">
+                    {restaurant.gallery.length + 1} photos
+                  </Badge>
+                </h2>
+                
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  {/* Photo principale plus grande */}
+                  <div className="md:col-span-2 md:row-span-2">
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <div className="relative group cursor-pointer overflow-hidden rounded-lg">
+                          <img 
+                            src={restaurant.image} 
+                            alt="Photo principale"
+                            className="w-full h-48 md:h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
+                            <Camera className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                          </div>
+                        </div>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-4xl">
+                        <img 
+                          src={restaurant.image} 
+                          alt="Photo principale"
+                          className="w-full h-auto max-h-[80vh] object-contain"
+                        />
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                  
+                  {/* Photos de la galerie */}
                   {restaurant.gallery.map((image, index) => (
-                    <img 
-                      key={index}
-                      src={image} 
-                      alt={`Photo ${index + 1}`}
-                      className="w-full h-24 rounded-lg object-cover hover:scale-105 transition-transform cursor-pointer"
-                    />
+                    <Dialog key={index}>
+                      <DialogTrigger asChild>
+                        <div className="relative group cursor-pointer overflow-hidden rounded-lg">
+                          <img 
+                            src={image} 
+                            alt={`Photo ${index + 1}`}
+                            className="w-full h-24 object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
+                            <Camera className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                          </div>
+                        </div>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-4xl">
+                        <img 
+                          src={image} 
+                          alt={`Photo ${index + 1}`}
+                          className="w-full h-auto max-h-[80vh] object-contain"
+                        />
+                      </DialogContent>
+                    </Dialog>
                   ))}
                 </div>
+                
+                <Button variant="outline" className="w-full mt-4 hover:bg-muted">
+                  <Camera className="w-4 h-4 mr-2" />
+                  Voir toutes les photos
+                </Button>
               </CardContent>
             </Card>
           </div>
