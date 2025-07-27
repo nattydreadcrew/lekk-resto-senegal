@@ -1,0 +1,50 @@
+import { Search, MapPin, Phone } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
+const Header = () => {
+  return (
+    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
+      <div className="container mx-auto px-4 py-4">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-2">
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-terracotta to-spice bg-clip-text text-transparent">
+              Lekk Resto
+            </h1>
+            <span className="text-sm text-muted-foreground">Sénégal</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Button variant="ghost" size="sm">
+              FR
+            </Button>
+            <Button variant="ghost" size="sm">
+              WO
+            </Button>
+          </div>
+        </div>
+        
+        <div className="flex flex-col lg:flex-row gap-4 items-center">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+            <Input 
+              placeholder="Rechercher un restaurant..."
+              className="pl-10 bg-muted/50"
+            />
+          </div>
+          
+          <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+            <MapPin className="w-4 h-4" />
+            <span>Dakar, Sénégal</span>
+          </div>
+          
+          <Button variant="spice" size="sm">
+            <Phone className="w-4 h-4 mr-2" />
+            Commander
+          </Button>
+        </div>
+      </div>
+    </header>
+  );
+};
+
+export default Header;
