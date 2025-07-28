@@ -2,61 +2,73 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Clock, Star, ChefHat, TrendingUp } from "lucide-react";
+import { Phone, MapPin, ChefHat } from "lucide-react";
 
 // Mock data pour les menus du jour mis en avant
-const featuredMenus = [
+const featuredRestaurants = [
   {
     id: "1",
-    restaurantName: "Chez Fatou",
-    restaurantId: "1",
-    dish: {
-      name: "Thiéboudienne Rouge",
-      description: "Le plat national sénégalais avec poisson frais, légumes variés et riz parfumé",
-      price: 3500,
-      image: "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400&h=300&fit=crop",
-      rating: 4.9,
-      reviewCount: 89
-    },
-    badge: "Plat du jour",
-    trending: true
+    name: "Le Bambaly",
+    address: "Route de Yoff, Jardin Cité BCEAO",
+    phone: "+221 77 123 45 67",
+    logo: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=80&h=80&fit=crop&crop=center",
+    dishes: [
+      {
+        name: "Soupou Kandia",
+        price: 3500,
+        image: "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=300&h=200&fit=crop"
+      },
+      {
+        name: "Pain jordanien fraîchement préparé",
+        price: 6000,
+        image: "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=300&h=200&fit=crop"
+      }
+    ]
   },
   {
-    id: "2", 
-    restaurantName: "Restaurant Teranga",
-    restaurantId: "2",
-    dish: {
-      name: "Mafé Bœuf Premium",
-      description: "Bœuf tendre mijoté dans une sauce d'arachide crémeuse, accompagné de légumes de saison",
-      price: 4000,
-      image: "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=400&h=300&fit=crop",
-      rating: 4.7,
-      reviewCount: 56
-    },
-    badge: "Spécialité",
-    trending: false
+    id: "2",
+    name: "LA SOLUTION",
+    address: "Fass Paillote, Dakar, Senegal", 
+    phone: "+221 78 234 56 78",
+    logo: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=80&h=80&fit=crop&crop=center",
+    dishes: [
+      {
+        name: "Attieké poisson",
+        price: 4500,
+        image: "https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=300&h=200&fit=crop"
+      },
+      {
+        name: "AMIWO (pâte rouge)",
+        price: 3000,
+        image: "https://images.unsplash.com/photo-1574484284002-952d92456975?w=300&h=200&fit=crop"
+      }
+    ]
   },
   {
-    id: "3",
-    restaurantName: "Le Baobab Gourmand", 
-    restaurantId: "3",
-    dish: {
-      name: "Caldou aux Légumes",
-      description: "Ragoût traditionnel aux légumes frais du marché et épices locales",
-      price: 2500,
-      image: "https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=400&h=300&fit=crop",
-      rating: 4.6,
-      reviewCount: 34
-    },
-    badge: "Végétarien",
-    trending: true
+    id: "3", 
+    name: "Chez Fatou",
+    address: "Medina, Dakar, Senegal",
+    phone: "+221 76 345 67 89", 
+    logo: "https://images.unsplash.com/photo-1551218808-94e220e084d2?w=80&h=80&fit=crop&crop=center",
+    dishes: [
+      {
+        name: "Thiéboudienne Rouge",
+        price: 4000,
+        image: "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=300&h=200&fit=crop"
+      },
+      {
+        name: "Mafé Bœuf Premium", 
+        price: 5000,
+        image: "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=300&h=200&fit=crop"
+      }
+    ]
   }
 ];
 
 const FeaturedMenus = () => {
   const navigate = useNavigate();
 
-  const handleDishClick = (restaurantId: string) => {
+  const handleRestaurantClick = (restaurantId: string) => {
     navigate(`/restaurant/${restaurantId}`);
   };
 
@@ -77,89 +89,77 @@ const FeaturedMenus = () => {
           <div className="w-24 h-1 bg-gradient-to-r from-spice to-sahel mx-auto mt-6 rounded-full" />
         </div>
 
-        {/* Featured Dishes Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-          {featuredMenus.map((menu, index) => (
+        {/* Restaurant Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+          {featuredRestaurants.map((restaurant, index) => (
             <Card 
-              key={menu.id} 
-              className="group overflow-hidden hover:shadow-warm transition-all duration-300 hover:scale-[1.02] cursor-pointer border-muted/50 animate-fade-in"
+              key={restaurant.id} 
+              className="group overflow-hidden hover:shadow-warm transition-all duration-300 cursor-pointer border-muted/50 animate-fade-in bg-card"
               style={{ animationDelay: `${index * 150}ms` }}
-              onClick={() => handleDishClick(menu.restaurantId)}
+              onClick={() => handleRestaurantClick(restaurant.id)}
             >
-              <div className="relative overflow-hidden">
-                <img 
-                  src={menu.dish.image} 
-                  alt={menu.dish.name}
-                  className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                
-                {/* Overlay gradient */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                
-                {/* Badges */}
-                <div className="absolute top-4 left-4 flex gap-2">
-                  <Badge 
-                    className={`backdrop-blur-sm ${
-                      menu.badge === "Plat du jour" 
-                        ? "bg-baobab/90 text-white" 
-                        : menu.badge === "Spécialité"
-                        ? "bg-spice/90 text-white"
-                        : "bg-sahel/90 text-white"
-                    }`}
-                  >
-                    {menu.badge}
-                  </Badge>
-                  {menu.trending && (
-                    <Badge className="bg-terracotta/90 text-white backdrop-blur-sm flex items-center gap-1">
-                      <TrendingUp className="w-3 h-3" />
-                      Tendance
-                    </Badge>
-                  )}
-                </div>
-
-                {/* Price badge */}
-                <Badge className="absolute top-4 right-4 bg-black/80 text-white backdrop-blur-sm font-bold">
-                  {menu.dish.price.toLocaleString()} CFA
-                </Badge>
-
-                {/* Restaurant name */}
-                <div className="absolute bottom-4 left-4 text-white">
-                  <p className="text-sm opacity-90">{menu.restaurantName}</p>
-                </div>
-              </div>
-
               <CardContent className="p-6">
-                <h3 className="font-bold text-xl text-foreground mb-2 group-hover:text-spice transition-colors">
-                  {menu.dish.name}
-                </h3>
-                
-                <p className="text-muted-foreground text-sm mb-4 leading-relaxed line-clamp-2">
-                  {menu.dish.description}
-                </p>
-
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center space-x-1">
-                    <Star className="w-4 h-4 fill-sahel text-sahel" />
-                    <span className="font-medium text-sm">{menu.dish.rating}</span>
-                    <span className="text-xs text-muted-foreground">({menu.dish.reviewCount} avis)</span>
+                {/* Restaurant Header */}
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 rounded-full overflow-hidden bg-muted flex-shrink-0">
+                      <img 
+                        src={restaurant.logo} 
+                        alt={restaurant.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-bold text-lg text-foreground group-hover:text-spice transition-colors">
+                        {restaurant.name}
+                      </h3>
+                      <div className="flex items-center text-sm text-muted-foreground mt-1">
+                        <MapPin className="w-3 h-3 mr-1" />
+                        <span className="line-clamp-1">{restaurant.address}</span>
+                      </div>
+                    </div>
                   </div>
                   
-                  <div className="flex items-center space-x-1 text-xs text-muted-foreground">
-                    <Clock className="w-3 h-3" />
-                    <span>Disponible aujourd'hui</span>
-                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="rounded-full w-10 h-10 p-0 hover:bg-spice hover:text-white border-spice/20"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      window.open(`tel:${restaurant.phone}`, '_self');
+                    }}
+                  >
+                    <Phone className="w-4 h-4" />
+                  </Button>
                 </div>
 
-                <Button 
-                  variant="spice" 
-                  className="w-full hover:shadow-lg transition-all duration-200"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDishClick(menu.restaurantId);
-                  }}
-                >
-                  Découvrir le restaurant
-                </Button>
+                {/* Dishes Grid */}
+                <div className="grid grid-cols-2 gap-3">
+                  {restaurant.dishes.map((dish, dishIndex) => (
+                    <div 
+                      key={dishIndex}
+                      className="relative overflow-hidden rounded-lg group/dish"
+                    >
+                      <div className="aspect-[4/3] overflow-hidden rounded-lg">
+                        <img 
+                          src={dish.image} 
+                          alt={dish.name}
+                          className="w-full h-full object-cover group-hover/dish:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                      
+                      {/* Dish Details */}
+                      <div className="mt-3">
+                        <h4 className="font-semibold text-sm text-foreground line-clamp-2 leading-tight">
+                          {dish.name}
+                        </h4>
+                        <p className="text-spice font-bold text-lg mt-1">
+                          {dish.price.toLocaleString()} <span className="text-sm font-normal">CFA</span>
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </CardContent>
             </Card>
           ))}
@@ -168,9 +168,9 @@ const FeaturedMenus = () => {
         {/* CTA Section */}
         <div className="text-center animate-fade-in">
           <Button 
-            variant="sahel" 
+            variant="default" 
             size="lg" 
-            className="hover:shadow-lg transition-all duration-200"
+            className="bg-gradient-to-r from-spice to-sahel hover:shadow-lg transition-all duration-200 text-white"
             onClick={() => navigate('/search')}
           >
             Voir tous les menus du jour
