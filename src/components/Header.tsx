@@ -18,9 +18,7 @@ const Header = () => {
               <Heart className="w-4 h-4 mr-1" />
               Favoris
             </Button>
-            <Button variant="ghost" size="sm">
-              FR
-            </Button>
+            
             <Button variant="ghost" size="sm">
               WO
             </Button>
