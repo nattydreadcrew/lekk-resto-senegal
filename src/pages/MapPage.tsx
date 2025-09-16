@@ -1,7 +1,7 @@
 import React from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import MapView from '@/components/MapView';
+import SimpleMapView from '@/components/SimpleMapView';
 
 const MapPage = () => {
   return (
@@ -16,7 +16,7 @@ const MapPage = () => {
             Explorez les restaurants autour de vous et ajustez le rayon de recherche selon vos préférences
           </p>
         </div>
-        <MapView />
+        <SimpleMapView />
       </main>
       <Footer />
     </div>

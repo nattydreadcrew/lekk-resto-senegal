@@ -1,26 +1,30 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
-import { LatLngTuple } from 'leaflet';
-import L from 'leaflet';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MapPin, Star, Clock, Truck } from 'lucide-react';
+import { MapPin, Star, Clock, Truck, AlertCircle } from 'lucide-react';
 
-// Fix pour les icônes Leaflet
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-});
+// Types
+type LatLngTuple = [number, number];
+
+interface Restaurant {
+  id: string;
+  name: string;
+  address: string;
+  phone: string;
+  rating: number;
+  deliveryAvailable: boolean;
+  openNow: boolean;
+  coordinates: LatLngTuple;
+  todaySpecials: { name: string; price: number }[];
+}
 
 // Position par défaut (Dakar)
 const DEFAULT_CENTER: LatLngTuple = [14.6928, -17.4467];
 
 // Mock data restaurants avec coordonnées
-const restaurantsWithCoords = [
+const restaurantsWithCoords: Restaurant[] = [
   {
     id: "1",
     name: "Chez Fatou",
@@ -29,7 +33,7 @@ const restaurantsWithCoords = [
     rating: 4.8,
     deliveryAvailable: true,
     openNow: true,
-    coordinates: [14.6928, -17.4467] as LatLngTuple,
+    coordinates: [14.6928, -17.4467],
     todaySpecials: [
       { name: "Thiéboudienne", price: 3500 },
       { name: "Yassa Poulet", price: 2800 }
@@ -43,7 +47,7 @@ const restaurantsWithCoords = [
     rating: 4.6,
     deliveryAvailable: true,
     openNow: true,
-    coordinates: [14.7392, -17.5197] as LatLngTuple,
+    coordinates: [14.7392, -17.5197],
     todaySpecials: [
       { name: "Mafé Bœuf", price: 4000 },
       { name: "Poisson Braisé", price: 3200 }
@@ -57,7 +61,7 @@ const restaurantsWithCoords = [
     rating: 4.4,
     deliveryAvailable: false,
     openNow: true,
-    coordinates: [14.6892, -17.4568] as LatLngTuple,
+    coordinates: [14.6892, -17.4568],
     todaySpecials: [
       { name: "Caldou", price: 2500 },
       { name: "Domoda", price: 2200 }
@@ -71,7 +75,7 @@ const restaurantsWithCoords = [
     rating: 4.7,
     deliveryAvailable: true,
     openNow: false,
-    coordinates: [14.7155, -17.4631] as LatLngTuple,
+    coordinates: [14.7155, -17.4631],
     todaySpecials: [
       { name: "Lakhou Bissap", price: 1800 },
       { name: "Ndolé", price: 3800 }
@@ -85,7 +89,7 @@ const restaurantsWithCoords = [
     rating: 4.5,
     deliveryAvailable: true,
     openNow: true,
-    coordinates: [14.7667, -17.4167] as LatLngTuple,
+    coordinates: [14.7667, -17.4167],
     todaySpecials: [
       { name: "Suppa Kandja", price: 2700 },
       { name: "Pastels", price: 500 }
@@ -101,10 +105,11 @@ const RADIUS_OPTIONS = [
   { value: '5000', label: '5 km' }
 ];
 
-const MapView = () => {
+const SimpleMapView = () => {
   const [userLocation, setUserLocation] = useState<LatLngTuple>(DEFAULT_CENTER);
   const [selectedRadius, setSelectedRadius] = useState('500');
-  const [filteredRestaurants, setFilteredRestaurants] = useState(restaurantsWithCoords);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Calculer la distance entre deux points
   const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
@@ -120,32 +125,52 @@ const MapView = () => {
   };
 
   // Filtrer les restaurants selon le rayon
-  useEffect(() => {
+  const filteredRestaurants = useMemo(() => {
     const radius = parseInt(selectedRadius);
-    const filtered = restaurantsWithCoords.filter(restaurant => {
+    return restaurantsWithCoords.filter(restaurant => {
       const distance = calculateDistance(
         userLocation[0], userLocation[1],
         restaurant.coordinates[0], restaurant.coordinates[1]
       );
       return distance <= radius;
     });
-    setFilteredRestaurants(filtered);
   }, [selectedRadius, userLocation]);
 
   // Obtenir la géolocalisation de l'utilisateur
   useEffect(() => {
+    setIsLoading(true);
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           setUserLocation([position.coords.latitude, position.coords.longitude]);
+          setIsLoading(false);
         },
-        () => {
-          // Utiliser la position par défaut en cas d'erreur
+        (error) => {
           console.log("Géolocalisation non disponible, utilisation de la position par défaut");
+          setError("Géolocalisation non disponible. Utilisation de Dakar par défaut.");
+          setIsLoading(false);
         }
       );
+    } else {
+      setError("Géolocalisation non supportée par ce navigateur.");
+      setIsLoading(false);
     }
   }, []);
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardContent className="flex items-center justify-center h-[400px]">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+              <p>Chargement de la carte...</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -155,6 +180,12 @@ const MapView = () => {
             <MapPin className="w-5 h-5 text-primary" />
             Restaurants autour de vous
           </CardTitle>
+          {error && (
+            <div className="flex items-center gap-2 text-amber-600 text-sm">
+              <AlertCircle className="w-4 h-4" />
+              {error}
+            </div>
+          )}
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <label htmlFor="radius-select" className="text-sm font-medium">
@@ -179,71 +210,51 @@ const MapView = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="h-[400px] rounded-lg overflow-hidden border">
-            {userLocation && (
-              <MapContainer
-                key={`${userLocation[0]}-${userLocation[1]}`}
-                center={userLocation}
-                zoom={14}
-                style={{ height: '100%', width: '100%' }}
-                className="z-0"
-              >
-                <TileLayer
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-                
-                <Circle
-                  center={userLocation}
-                  radius={parseInt(selectedRadius)}
-                  pathOptions={{
-                    fillColor: '#e11d48',
-                    fillOpacity: 0.1,
-                    color: '#e11d48',
-                    weight: 2
-                  }}
-                />
-                
-                <Marker position={userLocation}>
-                  <Popup>
-                    <div className="text-center">
-                      <strong>Votre position</strong>
+          {/* Liste des restaurants en attendant que la carte fonctionne */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Restaurants dans un rayon de {selectedRadius === '1000' ? '1 km' : selectedRadius === '500' ? '500m' : `${parseInt(selectedRadius)/1000} km`}</h3>
+            <div className="grid gap-4">
+              {filteredRestaurants.map((restaurant) => (
+                <div key={restaurant.id} className="border rounded-lg p-4 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-semibold">{restaurant.name}</h4>
+                    <div className="flex items-center gap-1">
+                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                      <span className="text-sm">{restaurant.rating}</span>
                     </div>
-                  </Popup>
-                </Marker>
-                
-                {filteredRestaurants.map((restaurant) => (
-                  <Marker key={restaurant.id} position={restaurant.coordinates}>
-                    <Popup>
-                      <div className="min-w-[200px] space-y-2">
-                        <h3 className="font-semibold text-base">{restaurant.name}</h3>
-                        <div className="flex items-center gap-2 text-sm">
-                          <MapPin className="w-3 h-3" />
-                          <span>{restaurant.address}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <MapPin className="w-4 h-4" />
+                    <span>{restaurant.address}</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <Badge variant={restaurant.openNow ? "default" : "secondary"}>
+                      <Clock className="w-3 h-3 mr-1" />
+                      {restaurant.openNow ? "Ouvert" : "Fermé"}
+                    </Badge>
+                    <Badge variant={restaurant.deliveryAvailable ? "default" : "secondary"}>
+                      <Truck className="w-3 h-3 mr-1" />
+                      {restaurant.deliveryAvailable ? "Livraison" : "Sur place"}
+                    </Badge>
+                  </div>
+                  <div className="space-y-1">
+                    <h5 className="font-medium text-sm">Plats du jour :</h5>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 text-sm">
+                      {restaurant.todaySpecials.map((dish, index) => (
+                        <div key={index} className="flex justify-between">
+                          <span>{dish.name}</span>
+                          <span className="font-medium">{dish.price} FCFA</span>
                         </div>
-                        <div className="flex items-center gap-3 text-sm">
-                          <div className="flex items-center gap-1">
-                            <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                            <span>{restaurant.rating}</span>
-                          </div>
-                          <span className={`px-2 py-1 rounded text-xs ${restaurant.openNow ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                            {restaurant.openNow ? "Ouvert" : "Fermé"}
-                          </span>
-                        </div>
-                        <div className="space-y-1">
-                          <h4 className="font-medium text-sm">Plats du jour :</h4>
-                          {restaurant.todaySpecials.slice(0, 2).map((dish, index) => (
-                            <div key={index} className="flex justify-between text-xs">
-                              <span>{dish.name}</span>
-                              <span className="font-medium">{dish.price} FCFA</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </Popup>
-                  </Marker>
-                ))}
-              </MapContainer>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {filteredRestaurants.length === 0 && (
+              <div className="text-center py-8 text-muted-foreground">
+                Aucun restaurant trouvé dans ce rayon. Essayez d'augmenter le rayon de recherche.
+              </div>
             )}
           </div>
         </CardContent>
@@ -252,4 +263,4 @@ const MapView = () => {
   );
 };
 
-export default MapView;
+export default SimpleMapView;
