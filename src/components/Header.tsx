@@ -17,9 +17,7 @@ const Header = () => {
               Favoris
             </Button>
             
-            <Button variant="ghost" size="sm">
-              WO
-            </Button>
+            
             <Button variant="outline" size="sm" onClick={() => navigate('/owner/dashboard')}>
               Propriétaire
             </Button>
