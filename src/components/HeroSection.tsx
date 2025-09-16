@@ -14,11 +14,7 @@ const HeroSection = () => {
       
       {/* Content */}
       <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto animate-slide-up">
-        <h1 className="text-4xl md:text-6xl font-display font-bold mb-6 leading-tight">
-          Découvrez les{" "}
-          <span className="text-sahel">meilleurs restaurants</span>{" "}
-          du Sénégal
-        </h1>
+        
         
         <p className="text-xl md:text-2xl mb-8 text-white/90">Trouvez les plats du jour autour de vous</p>
         
