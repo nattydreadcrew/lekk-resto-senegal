@@ -8,9 +8,7 @@ const Header = () => {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-2">
-            <h1 className="text-2xl font-display font-bold bg-gradient-to-r from-terracotta to-spice bg-clip-text text-transparent">
-              Lekk Resto
-            </h1>
+            <h1 className="text-2xl font-display font-bold bg-gradient-to-r from-terracotta to-spice bg-clip-text text-transparent">Plat du jour</h1>
             <span className="text-sm text-muted-foreground">Sénégal</span>
           </div>
           <div className="flex items-center space-x-2">
