@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Search, MapPin, Phone, Heart, User, LogOut } from "lucide-react";
+import { Search, MapPin, Phone, Heart, User, LogOut, Map } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
@@ -23,6 +23,10 @@ const Header = () => {
             <Button variant="ghost" size="sm" onClick={() => navigate('/favorites')}>
               <Heart className="w-4 h-4 mr-1" />
               Favoris
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => navigate('/map')}>
+              <Map className="w-4 h-4 mr-1" />
+              Carte
             </Button>
             
             {user ? (

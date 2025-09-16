@@ -4,6 +4,7 @@ import { AppProviders } from "@/components/AppProviders";
 import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import SearchPage from "./pages/SearchPage";
+import MapPage from "./pages/MapPage";
 import RestaurantDetail from "./pages/RestaurantDetail";
 import OwnerDashboard from "./pages/OwnerDashboard";
 import FavoritesPage from "./pages/FavoritesPage";
@@ -21,6 +22,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/search" element={<SearchPage />} />
+              <Route path="/map" element={<MapPage />} />
               <Route path="/restaurant/:id" element={<RestaurantDetail />} />
               <Route path="/owner/dashboard" element={<OwnerDashboard />} />
               <Route path="/favorites" element={<FavoritesPage />} />
