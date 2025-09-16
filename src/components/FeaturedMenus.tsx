@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Phone, MapPin, ChefHat } from "lucide-react";
+import { Phone, MapPin, ChefHat, Truck } from "lucide-react";
 
 // Mock data pour les menus du jour mis en avant
 const featuredRestaurants = [
@@ -11,6 +11,7 @@ const featuredRestaurants = [
     name: "Le Bambaly",
     address: "Route de Yoff, Jardin Cité BCEAO",
     phone: "+221 77 123 45 67",
+    deliveryAvailable: true,
     logo: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=80&h=80&fit=crop&crop=center",
     dishes: [
       {
@@ -30,6 +31,7 @@ const featuredRestaurants = [
     name: "LA SOLUTION",
     address: "Fass Paillote, Dakar, Senegal", 
     phone: "+221 78 234 56 78",
+    deliveryAvailable: false,
     logo: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=80&h=80&fit=crop&crop=center",
     dishes: [
       {
@@ -48,7 +50,8 @@ const featuredRestaurants = [
     id: "3", 
     name: "Chez Fatou",
     address: "Medina, Dakar, Senegal",
-    phone: "+221 76 345 67 89", 
+    phone: "+221 76 345 67 89",
+    deliveryAvailable: true,
     logo: "https://images.unsplash.com/photo-1551218808-94e220e084d2?w=80&h=80&fit=crop&crop=center",
     dishes: [
       {
@@ -116,6 +119,15 @@ const FeaturedMenus = () => {
                       <div className="flex items-center text-sm text-muted-foreground mt-1">
                         <MapPin className="w-3 h-3 mr-1" />
                         <span className="line-clamp-1">{restaurant.address}</span>
+                      </div>
+                      <div className="flex items-center mt-2">
+                        <Badge 
+                          variant={restaurant.deliveryAvailable ? "default" : "secondary"}
+                          className={`text-xs ${restaurant.deliveryAvailable ? 'bg-green-100 text-green-800 border-green-200' : 'bg-gray-100 text-gray-600 border-gray-200'}`}
+                        >
+                          <Truck className="w-3 h-3 mr-1" />
+                          {restaurant.deliveryAvailable ? "Livraison disponible" : "Pas de livraison"}
+                        </Badge>
                       </div>
                     </div>
                   </div>
