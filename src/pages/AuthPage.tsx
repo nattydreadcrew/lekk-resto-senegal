@@ -11,6 +11,9 @@ import { toast } from "sonner";
 const AuthPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [displayName, setDisplayName] = useState('');
+  const [restaurantName, setRestaurantName] = useState('');
+  const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -28,16 +31,28 @@ const AuthPage = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!email || !password || !displayName || !restaurantName) {
+      setError('Veuillez remplir tous les champs obligatoires.');
+      return;
+    }
+    
     setLoading(true);
     setError('');
 
-    const redirectUrl = `${window.location.origin}/`;
+    const redirectUrl = `${window.location.origin}/owner/dashboard`;
 
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: redirectUrl
+        emailRedirectTo: redirectUrl,
+        data: {
+          display_name: displayName,
+          restaurant_name: restaurantName,
+          phone: phone,
+          role: 'producer'
+        }
       }
     });
 
@@ -50,7 +65,7 @@ const AuthPage = () => {
         setError(error.message);
       }
     } else {
-      toast.success('Compte créé avec succès! Vérifiez votre email pour confirmer votre inscription.');
+      toast.success('Compte créé avec succès! Vérifiez votre email pour confirmer votre inscription et commencer à gérer votre restaurant.');
     }
   };
 
@@ -86,14 +101,14 @@ const AuthPage = () => {
             Plat du jour
           </CardTitle>
           <CardDescription>
-            Connectez-vous ou créez un compte
+            Plateforme de gestion pour restaurateurs
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="signin" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="signin">Connexion</TabsTrigger>
-              <TabsTrigger value="signup">Inscription</TabsTrigger>
+              <TabsTrigger value="signup">Inscrire mon restaurant</TabsTrigger>
             </TabsList>
             
             <TabsContent value="signin">
@@ -129,33 +144,74 @@ const AuthPage = () => {
             
             <TabsContent value="signup">
               <form onSubmit={handleSignUp} className="space-y-4">
+                <div className="text-center mb-4">
+                  <h3 className="font-semibold text-foreground">Créez votre compte restaurateur</h3>
+                  <p className="text-sm text-muted-foreground">Gérez vos plats du jour et votre restaurant</p>
+                </div>
+                
+                <div className="space-y-2">
+                  <Input
+                    type="text"
+                    placeholder="Votre nom et prénom *"
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
+                    required
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Input
+                    type="text"
+                    placeholder="Nom de votre restaurant *"
+                    value={restaurantName}
+                    onChange={(e) => setRestaurantName(e.target.value)}
+                    required
+                  />
+                </div>
+                
                 <div className="space-y-2">
                   <Input
                     type="email"
-                    placeholder="Email"
+                    placeholder="Email professionnel *"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
                   />
                 </div>
+                
+                <div className="space-y-2">
+                  <Input
+                    type="tel"
+                    placeholder="Téléphone (optionnel)"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                  />
+                </div>
+                
                 <div className="space-y-2">
                   <Input
                     type="password"
-                    placeholder="Mot de passe (min. 6 caractères)"
+                    placeholder="Mot de passe (min. 6 caractères) *"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     minLength={6}
                   />
                 </div>
+                
                 {error && (
                   <Alert variant="destructive">
                     <AlertDescription>{error}</AlertDescription>
                   </Alert>
                 )}
+                
                 <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? 'Création...' : 'Créer un compte'}
+                  {loading ? 'Création en cours...' : 'Créer mon compte restaurateur'}
                 </Button>
+                
+                <p className="text-xs text-muted-foreground text-center">
+                  En créant votre compte, vous pourrez gérer vos plats du jour, vos informations restaurant et interagir avec vos clients.
+                </p>
               </form>
             </TabsContent>
           </Tabs>
