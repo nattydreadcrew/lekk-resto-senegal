@@ -20,9 +20,7 @@ const HeroSection = () => {
           du Sénégal
         </h1>
         
-        <p className="text-xl md:text-2xl mb-8 text-white/90">
-          Trouvez les plats du jour de vos restaurants préférés à Dakar et partout au Sénégal
-        </p>
+        <p className="text-xl md:text-2xl mb-8 text-white/90">Trouvez les plats du jour autour de vous</p>
         
         {/* Search Bar */}
         <div className="max-w-2xl mx-auto">
