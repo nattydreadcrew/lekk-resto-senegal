@@ -65,7 +65,13 @@ const AuthPage = () => {
         setError(error.message);
       }
     } else {
-      toast.success('Compte créé avec succès! Vérifiez votre email pour confirmer votre inscription et commencer à gérer votre restaurant.');
+      toast.success('Compte créé avec succès! Vérifiez votre email pour confirmer votre inscription avant de pouvoir vous connecter.');
+      // Clear form after successful signup
+      setEmail('');
+      setPassword('');
+      setDisplayName('');
+      setRestaurantName('');
+      setPhone('');
     }
   };
 
@@ -83,7 +89,9 @@ const AuthPage = () => {
 
     if (error) {
       if (error.message.includes('Invalid login credentials')) {
-        setError('Email ou mot de passe incorrect.');
+        setError('Email ou mot de passe incorrect. Assurez-vous d\'avoir confirmé votre email après l\'inscription.');
+      } else if (error.message.includes('Email not confirmed')) {
+        setError('Veuillez confirmer votre email avant de vous connecter. Vérifiez votre boîte de réception.');
       } else {
         setError(error.message);
       }
@@ -209,9 +217,14 @@ const AuthPage = () => {
                   {loading ? 'Création en cours...' : 'Créer mon compte restaurateur'}
                 </Button>
                 
-                <p className="text-xs text-muted-foreground text-center">
-                  En créant votre compte, vous pourrez gérer vos plats du jour, vos informations restaurant et interagir avec vos clients.
-                </p>
+                <div className="space-y-2 text-xs text-muted-foreground text-center">
+                  <p>
+                    En créant votre compte, vous pourrez gérer vos plats du jour, vos informations restaurant et interagir avec vos clients.
+                  </p>
+                  <p className="font-medium">
+                    📧 Après inscription, vérifiez votre email pour confirmer votre compte avant de vous connecter.
+                  </p>
+                </div>
               </form>
             </TabsContent>
           </Tabs>
