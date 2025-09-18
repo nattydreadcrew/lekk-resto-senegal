@@ -98,23 +98,22 @@ const OwnerDashboard = () => {
     };
 
   const loadDailySpecials = async (restaurantId: string) => {
-      // First, delete expired daily specials (older than 24 hours)
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      
+      const today = new Date().toISOString().split('T')[0];
+
+      // Delete specials older than today (keep only today's records)
       await supabase
         .from("daily_specials")
         .delete()
         .eq("restaurant_id", restaurantId)
-        .lt("available_date", yesterday.toISOString().split('T')[0]);
+        .lt("available_date", today);
 
-      // Then fetch current daily specials
+      // Fetch today's specials only
       const { data, error } = await supabase
         .from("daily_specials")
         .select("*")
         .eq("restaurant_id", restaurantId)
-        .gte("available_date", new Date().toISOString().split('T')[0])
-        .order("available_date", { ascending: false });
+        .eq("available_date", today)
+        .order("created_at", { ascending: false });
 
       if (error) {
         console.error("Error fetching daily specials:", error);
@@ -158,6 +157,10 @@ const OwnerDashboard = () => {
 
   const handleCreateDailySpecial = async () => {
     if (!restaurant) return;
+    if (dailySpecials.length >= 2) {
+      toast.error("Vous avez déjà 2 menus pour aujourd'hui.");
+      return;
+    }
     if (!specialName.trim() || !specialPrice.trim()) {
       toast.error("Le nom et le prix sont obligatoires.");
       return;
@@ -169,6 +172,8 @@ const OwnerDashboard = () => {
       return;
     }
 
+    const today = new Date().toISOString().split('T')[0];
+
     const { data, error } = await supabase
       .from("daily_specials")
       .insert({
@@ -176,7 +181,7 @@ const OwnerDashboard = () => {
         name: specialName.trim(),
         description: specialDescription.trim() || null,
         price: price,
-        available_date: specialDate,
+        available_date: today,
       })
       .select("*")
       .single();
@@ -187,8 +192,8 @@ const OwnerDashboard = () => {
       return;
     }
 
-    toast.success("Plat du jour ajouté avec succès !");
-    setDailySpecials([data, ...dailySpecials]);
+    toast.success("Menu du jour ajouté avec succès !");
+    setDailySpecials([data as DailySpecial, ...dailySpecials]);
     
     // Reset form
     setSpecialName("");
@@ -286,175 +291,89 @@ const OwnerDashboard = () => {
 
             {/* Menu du jour */}
             <TabsContent value="menu" className="space-y-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Ajout rapide pour aujourd'hui */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      <Plus className="w-5 h-5 text-spice" />
-                      <span>Menu d'aujourd'hui</span>
-                    </CardTitle>
-                    <p className="text-sm text-muted-foreground">
-                      Ajoutez jusqu'à 2 plats pour aujourd'hui (expiration automatique dans 24h)
-                    </p>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <label className="text-sm font-medium text-foreground mb-2 block">Nom du plat *</label>
-                      <Input 
-                        placeholder="Ex: Thieboudienne aux légumes"
-                        value={specialName} 
-                        onChange={(e) => setSpecialName(e.target.value)} 
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-foreground mb-2 block">Prix (FCFA) *</label>
-                      <Input 
-                        type="number"
-                        placeholder="2500"
-                        value={specialPrice} 
-                        onChange={(e) => setSpecialPrice(e.target.value)} 
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-foreground mb-2 block">Description</label>
-                      <Textarea 
-                        placeholder="Description du plat..."
-                        value={specialDescription} 
-                        onChange={(e) => setSpecialDescription(e.target.value)} 
-                        rows={3}
-                      />
-                    </div>
-                    <Button
-                      variant="spice"
-                      className="w-full"
-                      onClick={handleCreateDailySpecial}
-                      disabled={dailySpecials.filter(s => s.available_date === new Date().toISOString().split('T')[0]).length >= 2}
-                    >
-                      {dailySpecials.filter(s => s.available_date === new Date().toISOString().split('T')[0]).length >= 2 
-                        ? "Maximum 2 plats par jour atteint" 
-                        : "Ajouter le plat du jour"}
-                    </Button>
-                  </CardContent>
-                </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Plus className="w-5 h-5 text-spice" />
+                    <span>Ajouter un menu du jour (aujourd'hui)</span>
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    Maximum 2 menus pour aujourd'hui. Ils expirent automatiquement après 24h.
+                  </p>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium text-foreground mb-2 block">Nom du plat *</label>
+                    <Input 
+                      placeholder="Ex: Thieboudienne aux légumes"
+                      value={specialName} 
+                      onChange={(e) => setSpecialName(e.target.value)} 
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-foreground mb-2 block">Prix (FCFA) *</label>
+                    <Input 
+                      type="number"
+                      placeholder="2500"
+                      value={specialPrice} 
+                      onChange={(e) => setSpecialPrice(e.target.value)} 
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-foreground mb-2 block">Description</label>
+                    <Textarea 
+                      placeholder="Description du plat..."
+                      value={specialDescription} 
+                      onChange={(e) => setSpecialDescription(e.target.value)} 
+                      rows={3}
+                    />
+                  </div>
+                  <Button
+                    variant="spice"
+                    className="w-full"
+                    onClick={handleCreateDailySpecial}
+                    disabled={dailySpecials.length >= 2}
+                  >
+                    {dailySpecials.length >= 2 
+                      ? "Maximum 2 menus atteints pour aujourd'hui" 
+                      : "Ajouter le menu du jour"}
+                  </Button>
+                </CardContent>
+              </Card>
 
-                {/* Planning avancé */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      <Clock className="w-5 h-5 text-spice" />
-                      <span>Planifier à l'avance</span>
-                    </CardTitle>
-                    <p className="text-sm text-muted-foreground">
-                      Programmez vos menus pour les prochains jours
-                    </p>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <label className="text-sm font-medium text-foreground mb-2 block">Date de disponibilité</label>
-                      <Input 
-                        type="date"
-                        value={specialDate} 
-                        onChange={(e) => setSpecialDate(e.target.value)} 
-                        min={new Date().toISOString().split('T')[0]}
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-foreground mb-2 block">Nom du plat *</label>
-                      <Input 
-                        placeholder="Ex: Ceebu jën rouge"
-                        value={specialName} 
-                        onChange={(e) => setSpecialName(e.target.value)} 
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-foreground mb-2 block">Prix (FCFA) *</label>
-                      <Input 
-                        type="number"
-                        placeholder="3000"
-                        value={specialPrice} 
-                        onChange={(e) => setSpecialPrice(e.target.value)} 
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-foreground mb-2 block">Description</label>
-                      <Textarea 
-                        placeholder="Description détaillée..."
-                        value={specialDescription} 
-                        onChange={(e) => setSpecialDescription(e.target.value)} 
-                        rows={3}
-                      />
-                    </div>
-                    <Button
-                      variant="outline"
-                      className="w-full"
-                      onClick={handleCreateDailySpecial}
-                      disabled={dailySpecials.filter(s => s.available_date === specialDate).length >= 2}
-                    >
-                      {dailySpecials.filter(s => s.available_date === specialDate).length >= 2 
-                        ? "Maximum 2 plats pour cette date" 
-                        : "Planifier ce plat"}
-                    </Button>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Liste des plats actuels */}
+              {/* Liste des menus du jour (aujourd'hui) */}
               {dailySpecials.length > 0 && (
                 <Card>
                   <CardHeader>
-                    <CardTitle>Mes menus actuels</CardTitle>
+                    <CardTitle>Menus du jour d'aujourd'hui</CardTitle>
                     <p className="text-sm text-muted-foreground">
-                      Les menus sont automatiquement supprimés après 24h
+                      Ils seront automatiquement supprimés après 24h (minuit)
                     </p>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      {/* Groupe par date */}
-                      {Object.entries(
-                        dailySpecials.reduce((acc, special) => {
-                          const date = special.available_date;
-                          if (!acc[date]) acc[date] = [];
-                          acc[date].push(special);
-                          return acc;
-                        }, {} as Record<string, DailySpecial[]>)
-                      )
-                        .sort(([a], [b]) => new Date(a).getTime() - new Date(b).getTime())
-                        .map(([date, specials]) => (
-                          <div key={date} className="border rounded-lg p-4">
-                            <div className="flex items-center justify-between mb-3">
-                              <h4 className="font-medium text-foreground">
-                                {new Date(date).toLocaleDateString('fr-FR', { 
-                                  weekday: 'long', 
-                                  day: 'numeric', 
-                                  month: 'long' 
-                                })}
-                              </h4>
-                              <Badge variant={date === new Date().toISOString().split('T')[0] ? "default" : "secondary"}>
-                                {date === new Date().toISOString().split('T')[0] ? "Aujourd'hui" : "Programmé"}
+                      {dailySpecials.map((special) => (
+                        <div key={special.id} className="flex items-center justify-between p-4 border rounded-lg">
+                          <div>
+                            <h4 className="font-medium text-foreground">{special.name}</h4>
+                            <p className="text-sm text-muted-foreground">{special.description}</p>
+                            <div className="flex items-center space-x-4 mt-2">
+                              <span className="text-sm font-medium text-spice">{special.price} FCFA</span>
+                              <Badge variant={special.is_available ? "default" : "secondary"}>
+                                {special.is_available ? "Disponible" : "Indisponible"}
                               </Badge>
                             </div>
-                            <div className="space-y-3">
-                              {specials.map((special) => (
-                                <div key={special.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                                  <div>
-                                    <h5 className="font-medium text-foreground">{special.name}</h5>
-                                    <p className="text-sm text-muted-foreground">{special.description}</p>
-                                    <span className="text-sm font-medium text-spice">{special.price} FCFA</span>
-                                  </div>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => handleDeleteDailySpecial(special.id)}
-                                    className="text-destructive hover:text-destructive"
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </Button>
-                                </div>
-                              ))}
-                            </div>
                           </div>
-                        ))}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteDailySpecial(special.id)}
+                            className="text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      ))}
                     </div>
                   </CardContent>
                 </Card>
