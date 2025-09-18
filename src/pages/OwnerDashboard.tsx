@@ -38,6 +38,13 @@ const OwnerDashboard = () => {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
 
+  // Daily special form state
+  const [specialName, setSpecialName] = useState("");
+  const [specialDescription, setSpecialDescription] = useState("");
+  const [specialPrice, setSpecialPrice] = useState("");
+  const [specialDate, setSpecialDate] = useState(new Date().toISOString().split('T')[0]);
+  const [dailySpecials, setDailySpecials] = useState<any[]>([]);
+
   useEffect(() => {
     if (authLoading) return;
     if (!user) {
@@ -69,9 +76,26 @@ const OwnerDashboard = () => {
           setDescription(data.description ?? "");
           setPhone(data.phone ?? "");
           setEmail(data.email ?? "");
+
+          // Load daily specials for this restaurant
+          loadDailySpecials(data.id);
         }
       }
       setLoading(false);
+    };
+
+    const loadDailySpecials = async (restaurantId: string) => {
+      const { data, error } = await supabase
+        .from("daily_specials")
+        .select("*")
+        .eq("restaurant_id", restaurantId)
+        .order("available_date", { ascending: false });
+
+      if (error) {
+        console.error("Error fetching daily specials:", error);
+      } else {
+        setDailySpecials(data || []);
+      }
     };
 
     load();
@@ -105,6 +129,63 @@ const OwnerDashboard = () => {
 
     toast.success("Restaurant créé avec succès !");
     setRestaurant(data as RestaurantRow);
+  };
+
+  const handleCreateDailySpecial = async () => {
+    if (!restaurant) return;
+    if (!specialName.trim() || !specialPrice.trim()) {
+      toast.error("Le nom et le prix sont obligatoires.");
+      return;
+    }
+
+    const price = parseFloat(specialPrice);
+    if (isNaN(price) || price <= 0) {
+      toast.error("Le prix doit être un nombre valide.");
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("daily_specials")
+      .insert({
+        restaurant_id: restaurant.id,
+        name: specialName.trim(),
+        description: specialDescription.trim() || null,
+        price: price,
+        available_date: specialDate,
+      })
+      .select("*")
+      .single();
+
+    if (error) {
+      console.error("Error creating daily special:", error);
+      toast.error(error.message);
+      return;
+    }
+
+    toast.success("Plat du jour ajouté avec succès !");
+    setDailySpecials([data, ...dailySpecials]);
+    
+    // Reset form
+    setSpecialName("");
+    setSpecialDescription("");
+    setSpecialPrice("");
+    setSpecialDate(new Date().toISOString().split('T')[0]);
+  };
+
+  const handleDeleteDailySpecial = async (specialId: string) => {
+    const { error } = await supabase
+      .from("daily_specials")
+      .delete()
+      .eq("id", specialId);
+
+    if (error) {
+      console.error("Error deleting daily special:", error);
+      toast.error(error.message);
+      return;
+    }
+
+    toast.success("Plat supprimé avec succès !");
+    setDailySpecials(dailySpecials.filter(special => special.id !== specialId));
   };
 
   const isEditingAllowed = useMemo(() => !!restaurant, [restaurant]);
@@ -178,7 +259,7 @@ const OwnerDashboard = () => {
               <TabsTrigger value="stats">Statistiques</TabsTrigger>
             </TabsList>
 
-            {/* Menu du jour - placeholder for now */}
+            {/* Menu du jour */}
             <TabsContent value="menu" className="space-y-6">
               <Card>
                 <CardHeader>
@@ -187,10 +268,89 @@ const OwnerDashboard = () => {
                     <span>Ajouter un plat du jour</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-2 text-sm text-muted-foreground">
-                  Cette section sera connectée à Supabase (table daily_specials). Pour l'instant, créez d'abord votre restaurant.
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium text-foreground mb-2 block">Nom du plat *</label>
+                      <Input 
+                        placeholder="Ex: Thieboudienne aux légumes"
+                        value={specialName} 
+                        onChange={(e) => setSpecialName(e.target.value)} 
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-foreground mb-2 block">Prix (FCFA) *</label>
+                      <Input 
+                        type="number"
+                        placeholder="2500"
+                        value={specialPrice} 
+                        onChange={(e) => setSpecialPrice(e.target.value)} 
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-foreground mb-2 block">Date de disponibilité</label>
+                    <Input 
+                      type="date"
+                      value={specialDate} 
+                      onChange={(e) => setSpecialDate(e.target.value)} 
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-foreground mb-2 block">Description</label>
+                    <Textarea 
+                      placeholder="Description du plat..."
+                      value={specialDescription} 
+                      onChange={(e) => setSpecialDescription(e.target.value)} 
+                    />
+                  </div>
+                  <Button
+                    variant="spice"
+                    className="w-full"
+                    onClick={handleCreateDailySpecial}
+                  >
+                    Ajouter le plat du jour
+                  </Button>
                 </CardContent>
               </Card>
+
+              {/* Liste des plats du jour */}
+              {dailySpecials.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Mes plats du jour</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {dailySpecials.map((special) => (
+                        <div key={special.id} className="flex items-center justify-between p-4 border rounded-lg">
+                          <div>
+                            <h4 className="font-medium text-foreground">{special.name}</h4>
+                            <p className="text-sm text-muted-foreground">{special.description}</p>
+                            <div className="flex items-center space-x-4 mt-2">
+                              <span className="text-sm font-medium text-spice">{special.price} FCFA</span>
+                              <span className="text-sm text-muted-foreground">
+                                {new Date(special.available_date).toLocaleDateString('fr-FR')}
+                              </span>
+                              <Badge variant={special.is_available ? "default" : "secondary"}>
+                                {special.is_available ? "Disponible" : "Indisponible"}
+                              </Badge>
+                            </div>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteDailySpecial(special.id)}
+                            className="text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </TabsContent>
 
             {/* Informations restaurant */}
